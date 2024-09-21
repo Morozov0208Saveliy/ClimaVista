@@ -22,6 +22,7 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
+/*
 class CityListActivity : AppCompatActivity() {
     lateinit var binding: ActivityCityListBinding
     private val cityAdapter by lazy { CityAdapter() }
@@ -85,4 +86,4 @@ class CityListActivity : AppCompatActivity() {
             })
         }
     }
-}
+}*/

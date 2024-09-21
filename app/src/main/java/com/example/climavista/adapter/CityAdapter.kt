@@ -1,50 +1,50 @@
 package com.example.climavista.adapter
 
-import android.content.Intent
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import com.example.climavista.activity.MainActivity
 import com.example.climavista.databinding.CityViewholderBinding
 import com.example.climavista.model.CityResponseApi
-import com.example.climavista.model.ForecastResponseApi
 
-class CityAdapter: RecyclerView.Adapter<CityAdapter.ViewHolder>() {
-    private lateinit var binding: CityViewholderBinding
+class CityAdapter(
+    private val onCityClick: (CityResponseApi.CityResponseItem) -> Unit // Функция для обработки кликов
+) : RecyclerView.Adapter<CityAdapter.ViewHolder>() {
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CityAdapter.ViewHolder {
+    // Создаем ViewHolder и связываем его с макетом
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val inflater = LayoutInflater.from(parent.context)
-        binding = CityViewholderBinding.inflate(inflater, parent, false)
-        return ViewHolder()
+        val binding = CityViewholderBinding.inflate(inflater, parent, false)
+        return ViewHolder(binding)
     }
 
-    override fun onBindViewHolder(holder: CityAdapter.ViewHolder, position: Int) {
-        val binding = CityViewholderBinding.bind(holder.itemView)
-        binding.cityTxt.text = differ.currentList[position].name
-        binding.root.setOnClickListener {
-            val intent = Intent(binding.root.context, MainActivity::class.java)
-            intent.putExtra("lat",differ.currentList[position].lat)
-            intent.putExtra("lon",differ.currentList[position].lon)
-            intent.putExtra("name",differ.currentList[position].name)
-            binding.root.context.startActivity(intent)
+    // Связываем данные с ViewHolder
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        val city = differ.currentList[position]
+        holder.bind(city)
+    }
 
+    // Количество элементов
+    override fun getItemCount() = differ.currentList.size
+
+    // ViewHolder для элемента списка
+    inner class ViewHolder(private val binding: CityViewholderBinding) : RecyclerView.ViewHolder(binding.root) {
+        fun bind(city: CityResponseApi.CityResponseItem) {
+            binding.cityTxt.text = city.name
+            binding.root.setOnClickListener {
+                onCityClick(city) // Обработка клика
+            }
         }
-
     }
 
-    inner class ViewHolder: RecyclerView.ViewHolder(binding.root)
-
-    override fun getItemCount()=differ.currentList.size
-
-
+    // Используем DiffUtil для оптимизации обновления списка
     private val differCallback = object : DiffUtil.ItemCallback<CityResponseApi.CityResponseItem>() {
         override fun areItemsTheSame(
             oldItem: CityResponseApi.CityResponseItem,
             newItem: CityResponseApi.CityResponseItem
         ): Boolean {
-            return oldItem == newItem
+            return oldItem== newItem // Предположим, что у вас есть идентификатор города
         }
 
         override fun areContentsTheSame(
@@ -53,9 +53,7 @@ class CityAdapter: RecyclerView.Adapter<CityAdapter.ViewHolder>() {
         ): Boolean {
             return oldItem == newItem
         }
-
-
     }
-    val differ = AsyncListDiffer(this, differCallback )
 
+    val differ = AsyncListDiffer(this, differCallback)
 }

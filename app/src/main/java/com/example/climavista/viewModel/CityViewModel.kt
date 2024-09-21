@@ -1,4 +1,4 @@
-package com.example.climavista.ViewModel
+package com.example.climavista.viewModel
 
 import androidx.lifecycle.ViewModel
 import com.example.climavista.repository.CityRepository

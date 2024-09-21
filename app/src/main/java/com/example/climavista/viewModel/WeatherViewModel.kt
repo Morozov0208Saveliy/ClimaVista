@@ -1,20 +1,17 @@
-package com.example.climavista.ViewModel
+package com.example.climavista.viewModel
 
 import androidx.lifecycle.ViewModel
-import com.example.climavista.model.CurrentResponseApi
-import com.example.climavista.model.ForecastResponseApi
 import com.example.climavista.repository.WeatherRepository
 import com.example.climavista.server.ApiClient
 import com.example.climavista.server.ApiServices
-import retrofit2.Call
 
-class WeatherViewModel(val repository: WeatherRepository) : ViewModel() {
-    constructor() : this(WeatherRepository(ApiClient().getClient().create(ApiServices::class.java)))
+class WeatherViewModel(private val repository: WeatherRepository = WeatherRepository(
+    ApiClient().getClient().create(ApiServices::class.java)
+)) : ViewModel() {
 
     fun loadCurrentWeather(lat: Double, lng: Double, units: String) =
         repository.getCurrentWeather(lat, lng, units)
 
     fun loadForecastWeather(lat: Double, lng: Double, units: String) =
         repository.getForecastWeather(lat, lng, units)
-
 }

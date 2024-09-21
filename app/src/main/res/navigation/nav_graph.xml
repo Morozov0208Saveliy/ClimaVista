@@ -27,6 +27,9 @@
             android:name="name"
             app:argType="string"
             android:defaultValue="Unknown City" />
+        <action
+            android:id="@+id/action_weatherDetailsFragment_to_settingsFragment"
+            app:destination="@id/settingsFragment" />
     </fragment>
     <!-- CityListFragment -->
     <fragment
@@ -37,6 +40,15 @@
         <!-- Переход на экран WeatherDetailsFragment -->
         <action
             android:id="@+id/action_cityListFragment_to_weatherDetailsFragment"
+            app:destination="@id/weatherDetailsFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/settingsFragment"
+        android:name="com.example.climavista.activity.SettingsFragment"
+        android:label="Settings"
+        tools:layout="@layout/fragment_settings" >
+        <action
+            android:id="@+id/action_settingsFragment_to_weatherDetailsFragment"
             app:destination="@id/weatherDetailsFragment" />
     </fragment>
 

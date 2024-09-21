@@ -1,11 +1,12 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
     <style name="Base.Theme.ClimaVista" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <!-- Customize your light theme here -->
+        <item name="android:windowTranslucentNavigation">true</item> <!-- Transparent navigation -->
+        <item name="android:windowFullscreen">true</item> <!-- Make the activity fullscreen -->
     </style>
 
-    <style name="Theme.ClimaVista" parent="Base.Theme.ClimaVista" >
-        <item name="android:windowTranslucentNavigation">true</item>
+    <style name="Theme.ClimaVista" parent="Base.Theme.ClimaVista">
+        <!-- Customize your dark theme here if needed -->
     </style>
 </resources>

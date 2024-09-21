@@ -9,10 +9,9 @@
     <!-- WeatherDetailsFragment -->
     <fragment
         android:id="@+id/weatherDetailsFragment"
-        android:name="com.example.climavista.fragment.WeatherDetailsFragment"
+        android:name="com.example.climavista.activity.WeatherDetailsFragment"
         android:label="Weather Details"
         tools:layout="@layout/fragment_weather_details">
-        <!-- Переход на экран CityListFragment -->
         <action
             android:id="@+id/action_weatherDetailsFragment_to_cityListFragment"
             app:destination="@id/cityListFragment" />
@@ -27,13 +26,12 @@
         <argument
             android:name="name"
             app:argType="string"
-            android:defaultValue="London" />
+            android:defaultValue="Unknown City" />
     </fragment>
-
     <!-- CityListFragment -->
     <fragment
         android:id="@+id/cityListFragment"
-        android:name="com.example.climavista.fragment.CityListFragment"
+        android:name="com.example.climavista.activity.CityListFragment"
         android:label="City List"
         tools:layout="@layout/fragment_city_list">
         <!-- Переход на экран WeatherDetailsFragment -->

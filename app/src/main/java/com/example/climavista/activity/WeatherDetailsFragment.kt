@@ -1,5 +1,6 @@
 package com.example.climavista.activity
 
+import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -15,17 +16,16 @@ import com.example.climavista.R
 import com.example.climavista.ViewModel.WeatherViewModel
 import com.example.climavista.adapter.ForecastAdapter
 import com.example.climavista.databinding.FragmentWeatherDetailsBinding
-import com.example.climavista.fragment.WeatherDetailsFragmentArgs
-import com.example.climavista.fragment.WeatherDetailsFragmentDirections
+import com.example.climavista.activity.WeatherDetailsFragmentArgs
+import com.example.climavista.activity.WeatherDetailsFragmentDirections
 import com.example.climavista.model.CurrentResponseApi
 import com.example.climavista.model.ForecastResponseApi
 import com.github.matteobattilana.weather.PrecipType
+import eightbitlab.com.blurview.RenderScriptBlur
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import java.util.Calendar
-import eightbitlab.com.blurview.RenderScriptBlur
-
 
 class WeatherDetailsFragment : Fragment() {
     private lateinit var binding: FragmentWeatherDetailsBinding
@@ -49,14 +49,13 @@ class WeatherDetailsFragment : Fragment() {
 
         binding.addCity.setOnClickListener {
             // Переход на экран поиска (CityListFragment)
-            val action =
-                WeatherDetailsFragmentDirections.actionWeatherDetailsFragmentToCityListFragment()
+            val action = WeatherDetailsFragmentDirections.actionWeatherDetailsFragmentToCityListFragment()
             findNavController().navigate(action)
         }
 
         // Получаем данные из переданных аргументов
-        val lat = args.lat.toDouble()
-        val lon = args.lon.toDouble()
+        val lat = args.lat.toDouble() // Ensure it's a Double
+        val lon = args.lon.toDouble() // Ensure it's a Double
         val name = args.name
 
         binding.apply {
@@ -104,12 +103,10 @@ class WeatherDetailsFragment : Fragment() {
             // Настройка размытия
             val decorView = requireActivity().window.decorView
             val windowBackground = decorView.background
-            blueView.setupWith(binding.root)
+            binding.blueView.setupWith(binding.root)
                 .setFrameClearDrawable(windowBackground)
-                .setBlurAlgorithm(RenderScriptBlur(requireContext()))
-                .setBlurRadius(10f)
+                .setBlurRadius(10f)  // Set the blur radius
                 .setBlurAutoUpdate(true)
-                .setHasFixedTransformationMatrix(true)
             blueView.outlineProvider = ViewOutlineProvider.BACKGROUND
             blueView.clipToOutline = true
 

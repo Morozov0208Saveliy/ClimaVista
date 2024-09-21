@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.climavista.ViewModel.CityViewModel
 import com.example.climavista.adapter.CityAdapter
 import com.example.climavista.databinding.FragmentCityListBinding
-import com.example.climavista.fragment.CityListFragmentDirections
+import com.example.climavista.activity.CityListFragmentDirections
 import com.example.climavista.model.CityResponseApi
 import retrofit2.Call
 import retrofit2.Callback

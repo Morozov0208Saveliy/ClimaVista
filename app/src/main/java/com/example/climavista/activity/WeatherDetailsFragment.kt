@@ -1,17 +1,29 @@
 package com.example.climavista.activity
 
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewOutlineProvider
 import android.widget.Toast
+import androidx.core.app.ActivityCompat
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
+import android.Manifest
 import com.example.climavista.R
 import com.example.climavista.adapter.ForecastAdapter
 import com.example.climavista.databinding.FragmentWeatherDetailsBinding
@@ -44,14 +56,25 @@ class WeatherDetailsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(requireActivity(), arrayOf(Manifest.permission.POST_NOTIFICATIONS), 1001)
+        }
+
+        createNotificationChannel()
+
         // Handle button clicks for navigation
         binding.addCity.setOnClickListener {
             val action = WeatherDetailsFragmentDirections.actionWeatherDetailsFragmentToCityListFragment()
             findNavController().navigate(action)
         }
 
-        binding.settingsButton.setOnClickListener {
-            val action = WeatherDetailsFragmentDirections.actionWeatherDetailsFragmentToSettingsFragment()
+        binding.weatherAlertImageView.setOnClickListener {
+            // Strip the degree symbol and convert the remaining part to a float
+            val currentTemperatureString = binding.currentTempTxt.text.toString().replace("°", "").trim()
+            val currentTemperature = currentTemperatureString.toFloat()
+
+            // Navigate to WeatherAlertFragment and pass the current temperature
+            val action = WeatherDetailsFragmentDirections.actionWeatherDetailsFragmentToWeatherAlertFragment(currentTemperature)
             findNavController().navigate(action)
         }
 
@@ -89,6 +112,7 @@ class WeatherDetailsFragment : Fragment() {
                             minTempTxt.text = it.main?.tempMin?.let { Math.round(it).toString() } + "°"
                             humidityTxt.text = "$humidity%"
                             setEffectRain(icon)
+                            checkAlerts(temp)
                         }
                     } else {
                         Toast.makeText(requireContext(), "Failed to load weather data", Toast.LENGTH_SHORT).show()
@@ -236,5 +260,47 @@ class WeatherDetailsFragment : Fragment() {
     // Convert Celsius to Fahrenheit
     private fun convertToFahrenheit(celsius: Double): Double {
         return (celsius * 9 / 5) + 32
+    }
+    private fun checkAlerts(currentTemperature: Float) {
+        val sharedPreferences = requireContext().getSharedPreferences("WeatherAlerts", Context.MODE_PRIVATE)
+        val savedThreshold = sharedPreferences.getFloat("threshold", Float.MAX_VALUE)
+        val savedCondition = sharedPreferences.getString("condition", "")
+
+        // Check if the alert condition is met (e.g., above a certain threshold)
+        if (savedCondition == "Above" && currentTemperature > savedThreshold) {
+            sendNotification(currentTemperature, savedThreshold) // Trigger the notification
+        }
+    }
+    private fun createNotificationChannel() {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            val name = "Weather Alerts"
+            val descriptionText = "Channel for weather alerts"
+            val importance = NotificationManager.IMPORTANCE_HIGH
+            val channel = NotificationChannel("weather_alerts", name, importance).apply {
+                description = descriptionText
+                lockscreenVisibility = Notification.VISIBILITY_PUBLIC
+            }
+            val notificationManager: NotificationManager = requireContext().getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.createNotificationChannel(channel)
+        }
+    }
+    private fun sendNotification(currentTemperature: Float, threshold: Float) {
+        val intent = Intent(requireContext(), MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        }
+        val pendingIntent: PendingIntent = PendingIntent.getActivity(requireContext(), 0, intent, 0)
+
+        val builder = NotificationCompat.Builder(requireContext(), "weather_alerts")
+            .setSmallIcon(R.drawable.ic_launcher_foreground) // Replace with your icon
+            .setContentTitle("Weather Alert!")
+            .setContentText("Temperature is above $threshold°C!")
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC) // Ensure it's visible on the lock screen
+            .setContentIntent(pendingIntent)
+            .setAutoCancel(true)
+
+            with(NotificationManagerCompat.from(requireContext())) {
+            notify(1, builder.build()) // Show the notification
+        }
     }
 }

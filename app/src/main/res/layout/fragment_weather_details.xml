@@ -31,7 +31,6 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.0" />
 
-    <!-- Add City button (existing) -->
     <ImageView
         android:id="@+id/addCity"
         android:layout_width="wrap_content"
@@ -43,14 +42,15 @@
         app:srcCompat="@mipmap/plus" />
 
     <ImageView
-        android:id="@+id/settingsButton"
+        android:id="@+id/weatherAlertImageView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="30dp"
-        android:layout_marginTop="30dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="32dp"
+        android:src="@drawable/alert_svg"
+        app:layout_constraintBottom_toBottomOf="@+id/addCity"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/settings" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/cityTxt"

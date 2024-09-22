@@ -10,20 +10,20 @@ import retrofit2.http.Query
 interface ApiServices {
 
     @GET("data/2.5/weather")
-    fun getCurrentWeather(
-        @Query("lat") lat : Double,
-        @Query("lon") lon : Double,
-        @Query("units") units:String,
-        @Query("appid") ApiKey: String,
-    ): Call<CurrentResponseApi>
+    suspend fun getCurrentWeather(
+        @Query("lat") lat: Double,
+        @Query("lon") lon: Double,
+        @Query("units") units: String,
+        @Query("appid") ApiKey: String
+    ): CurrentResponseApi
 
     @GET("data/2.5/forecast")
-    fun getForecastWeather(
-        @Query("lat") lat : Double,
-        @Query("lon") lon : Double,
-        @Query("units") units:String,
-        @Query("appid") ApiKey: String,
-    ): Call<ForecastResponseApi>
+    suspend fun getForecastWeather(
+        @Query("lat") lat: Double,
+        @Query("lon") lon: Double,
+        @Query("units") units: String,
+        @Query("appid") ApiKey: String
+    ): ForecastResponseApi
 
     @GET("geo/1.0/direct")
     fun getCitiesList(

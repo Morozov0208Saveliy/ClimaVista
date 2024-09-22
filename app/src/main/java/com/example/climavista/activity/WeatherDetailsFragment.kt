@@ -24,6 +24,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import android.Manifest
+import androidx.lifecycle.lifecycleScope
 import com.example.climavista.R
 import com.example.climavista.adapter.ForecastAdapter
 import com.example.climavista.databinding.FragmentWeatherDetailsBinding
@@ -31,6 +32,7 @@ import com.example.climavista.model.CurrentResponseApi
 import com.example.climavista.model.ForecastResponseApi
 import com.example.climavista.viewModel.WeatherViewModel
 import com.github.matteobattilana.weather.PrecipType
+import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -56,25 +58,38 @@ class WeatherDetailsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(requireActivity(), arrayOf(Manifest.permission.POST_NOTIFICATIONS), 1001)
+        if (ContextCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.POST_NOTIFICATIONS
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                requireActivity(),
+                arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+                1001
+            )
         }
 
         createNotificationChannel()
 
         // Handle button clicks for navigation
         binding.addCity.setOnClickListener {
-            val action = WeatherDetailsFragmentDirections.actionWeatherDetailsFragmentToCityListFragment()
+            val action =
+                WeatherDetailsFragmentDirections.actionWeatherDetailsFragmentToCityListFragment()
             findNavController().navigate(action)
         }
 
         binding.weatherAlertImageView.setOnClickListener {
             // Strip the degree symbol and convert the remaining part to a float
-            val currentTemperatureString = binding.currentTempTxt.text.toString().replace("°", "").trim()
+            val currentTemperatureString =
+                binding.currentTempTxt.text.toString().replace("°", "").trim()
             val currentTemperature = currentTemperatureString.toFloat()
 
             // Navigate to WeatherAlertFragment and pass the current temperature
-            val action = WeatherDetailsFragmentDirections.actionWeatherDetailsFragmentToWeatherAlertFragment(currentTemperature)
+            val action =
+                WeatherDetailsFragmentDirections.actionWeatherDetailsFragmentToWeatherAlertFragment(
+                    currentTemperature
+                )
             findNavController().navigate(action)
         }
 
@@ -83,79 +98,76 @@ class WeatherDetailsFragment : Fragment() {
         val lon = args.lon.toDouble()
         val name = args.name
 
-        // Apply weather data
         binding.apply {
             cityTxt.text = name ?: "Unknown City"
             progressBar.visibility = View.VISIBLE
 
-            // Apply user preferences
-            applyUserSettings()
-
-            // Load current weather data
-            weatherViewModel.loadCurrentWeather(lat, lon, "metric").enqueue(object :
-                Callback<CurrentResponseApi> {
-                override fun onResponse(call: Call<CurrentResponseApi>, response: Response<CurrentResponseApi>) {
-                    if (response.isSuccessful) {
-                        val data = response.body()
-                        progressBar.visibility = View.GONE
-                        detailLayout.visibility = View.VISIBLE
-                        data?.let {
-                            val temp = it.main?.temp?.toFloat() ?: 0.0f
-                            val icon = it.weather?.get(0)?.icon ?: "-"
-                            val humidity = it.main?.humidity?.toString() ?: "-"
-                            val drawable = if (isNight()) R.mipmap.night_bg else setDinamicallyWallpaper(icon, temp)
-                            bgImage.setImageResource(drawable)
-                            statusTxt.text = it.weather?.get(0)?.main ?: "-"
-                            windTxt.text = it.wind?.speed?.let { Math.round(it).toString() } + " km/h"
-                            currentTempTxt.text = it.main?.temp?.let { Math.round(it).toString() } + "°"
-                            maxTempTxt.text = it.main?.tempMax?.let { Math.round(it).toString() } + "°"
-                            minTempTxt.text = it.main?.tempMin?.let { Math.round(it).toString() } + "°"
-                            humidityTxt.text = "$humidity%"
-                            setEffectRain(icon)
-                            checkAlerts(temp)
-                        }
-                    } else {
-                        Toast.makeText(requireContext(), "Failed to load weather data", Toast.LENGTH_SHORT).show()
-                    }
-                }
-
-                override fun onFailure(call: Call<CurrentResponseApi>, t: Throwable) {
-                    Toast.makeText(requireContext(), t.toString(), Toast.LENGTH_SHORT).show()
-                }
-            })
-
-            // Setup blur effect
-            val decorView = requireActivity().window.decorView
-            val windowBackground = decorView.background
-            binding.blueView.setupWith(binding.root)
-                .setFrameClearDrawable(windowBackground)
-                .setBlurRadius(10f)
-                .setBlurAutoUpdate(true)
-            blueView.outlineProvider = ViewOutlineProvider.BACKGROUND
-            blueView.clipToOutline = true
-
-            // Load forecast weather data
-            weatherViewModel.loadForecastWeather(lat, lon, "metric").enqueue(object : Callback<ForecastResponseApi> {
-                override fun onResponse(call: Call<ForecastResponseApi>, response: Response<ForecastResponseApi>) {
-                    if (response.isSuccessful) {
-                        val data = response.body()
-                        blueView.visibility = View.VISIBLE
-
-                        data?.let {
-                            forecastAdapter.differ.submitList(it.list)
-                            forecastView.apply {
-                                layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
-                                adapter = forecastAdapter
-                            }
-                        }
-                    }
-                }
-
-                override fun onFailure(call: Call<ForecastResponseApi>, t: Throwable) {
-                    Toast.makeText(requireContext(), t.toString(), Toast.LENGTH_SHORT).show()
-                }
-            })
+            // Start collecting data from ViewModel
+            observeViewModel(lat, lon)
         }
+    }
+
+    private fun observeViewModel(lat: Double, lon: Double) {
+        // Collect current weather data
+        viewLifecycleOwner.lifecycleScope.launch {
+            weatherViewModel.loadCurrentWeather(lat, lon, "metric")
+            weatherViewModel.currentWeather.collect { weatherData ->
+                weatherData?.let { updateUIWithCurrentWeather(it) }
+            }
+        }
+
+        // Collect forecast weather data
+        viewLifecycleOwner.lifecycleScope.launch {
+            weatherViewModel.loadForecastWeather(lat, lon, "metric")
+            weatherViewModel.forecastWeather.collect { forecastData ->
+                forecastData?.let { updateUIWithForecastWeather(it) }
+            }
+        }
+
+        // Collect loading state
+        viewLifecycleOwner.lifecycleScope.launch {
+            weatherViewModel.isLoading.collect { isLoading ->
+                binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
+            }
+        }
+
+        // Collect error state
+        viewLifecycleOwner.lifecycleScope.launch {
+            weatherViewModel.error.collect { errorMessage ->
+                errorMessage?.let {
+                    Toast.makeText(requireContext(), it, Toast.LENGTH_LONG).show()
+                    weatherViewModel.clearError()
+                }
+            }
+        }
+    }
+
+    private fun updateUIWithCurrentWeather(data: CurrentResponseApi) {
+        val temp = data.main?.temp?.toFloat() ?: 0.0f
+        val icon = data.weather?.get(0)?.icon ?: "-"
+        val humidity = data.main?.humidity?.toString() ?: "-"
+        val drawable = if (isNight()) R.mipmap.night_bg else setDinamicallyWallpaper(icon, temp)
+
+        binding.apply {
+            bgImage.setImageResource(drawable)
+            statusTxt.text = data.weather?.get(0)?.main ?: "-"
+            windTxt.text = data.wind?.speed?.let { Math.round(it).toString() } + " km/h"
+            currentTempTxt.text = data.main?.temp?.let { Math.round(it).toString() } + "°"
+            maxTempTxt.text = data.main?.tempMax?.let { Math.round(it).toString() } + "°"
+            minTempTxt.text = data.main?.tempMin?.let { Math.round(it).toString() } + "°"
+            humidityTxt.text = "$humidity%"
+            setEffectRain(icon)
+            checkAlerts(temp)
+        }
+    }
+
+    private fun updateUIWithForecastWeather(data: ForecastResponseApi) {
+        forecastAdapter.differ.submitList(data.list)
+        binding.forecastView.apply {
+            layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+            adapter = forecastAdapter
+        }
+        binding.blueView.visibility = View.VISIBLE
     }
 
     // Determine if it's night time based on the hour
@@ -170,22 +182,27 @@ class WeatherDetailsFragment : Fragment() {
                 initWeather(PrecipType.CLEAR)
                 if (temp > 15) R.mipmap.sunny_bg else R.mipmap.snow_bg
             }
+
             "02", "03", "04" -> {
                 initWeather(PrecipType.CLEAR)
                 R.mipmap.cloudy_bg
             }
+
             "09", "10", "11" -> {
                 initWeather(PrecipType.RAIN)
                 R.mipmap.rainy_bg
             }
+
             "13" -> {
                 initWeather(PrecipType.SNOW)
                 R.mipmap.snow_bg
             }
+
             "50" -> {
                 initWeather(PrecipType.CLEAR)
                 R.mipmap.haze_bg
             }
+
             else -> 0
         }
     }
@@ -209,60 +226,9 @@ class WeatherDetailsFragment : Fragment() {
         }
     }
 
-    // Apply user settings, such as temperature unit and frequency
-    private fun applyUserSettings() {
-        val sharedPreferences = requireContext().getSharedPreferences("climavista_prefs", Context.MODE_PRIVATE)
-
-        val temperatureUnit = sharedPreferences.getString("unit_preference", "Celsius")
-        val updateFrequency = sharedPreferences.getInt("update_frequency", 1)
-
-        // Convert temperature based on the unit preference
-        weatherViewModel.loadCurrentWeather(args.lat.toDouble(), args.lon.toDouble(), "metric").enqueue(object : Callback<CurrentResponseApi> {
-            override fun onResponse(call: Call<CurrentResponseApi>, response: Response<CurrentResponseApi>) {
-                if (response.isSuccessful) {
-                    val data = response.body()
-                    data?.let {
-                        val temp = it.main?.temp?.toDouble() ?: 0.0
-                        val maxTemp = it.main?.tempMax?.toDouble() ?: 0.0
-                        val minTemp = it.main?.tempMin?.toDouble() ?: 0.0
-
-                        val adjustedTemp = if (temperatureUnit == "Fahrenheit") {
-                            convertToFahrenheit(temp)
-                        } else {
-                            temp
-                        }
-
-                        val adjustedMaxTemp = if (temperatureUnit == "Fahrenheit") {
-                            convertToFahrenheit(maxTemp)
-                        } else {
-                            maxTemp
-                        }
-
-                        val adjustedMinTemp = if (temperatureUnit == "Fahrenheit") {
-                            convertToFahrenheit(minTemp)
-                        } else {
-                            minTemp
-                        }
-
-                        binding.currentTempTxt.text = "${Math.round(adjustedTemp)}°"
-                        binding.maxTempTxt.text = "${Math.round(adjustedMaxTemp)}°"
-                        binding.minTempTxt.text = "${Math.round(adjustedMinTemp)}°"
-                    }
-                }
-            }
-
-            override fun onFailure(call: Call<CurrentResponseApi>, t: Throwable) {
-                Toast.makeText(requireContext(), t.toString(), Toast.LENGTH_SHORT).show()
-            }
-        })
-    }
-
-    // Convert Celsius to Fahrenheit
-    private fun convertToFahrenheit(celsius: Double): Double {
-        return (celsius * 9 / 5) + 32
-    }
     private fun checkAlerts(currentTemperature: Float) {
-        val sharedPreferences = requireContext().getSharedPreferences("WeatherAlerts", Context.MODE_PRIVATE)
+        val sharedPreferences =
+            requireContext().getSharedPreferences("WeatherAlerts", Context.MODE_PRIVATE)
         val savedThreshold = sharedPreferences.getFloat("threshold", Float.MAX_VALUE)
         val savedCondition = sharedPreferences.getString("condition", "")
 
@@ -271,6 +237,7 @@ class WeatherDetailsFragment : Fragment() {
             sendNotification(currentTemperature, savedThreshold) // Trigger the notification
         }
     }
+
     private fun createNotificationChannel() {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             val name = "Weather Alerts"
@@ -280,16 +247,44 @@ class WeatherDetailsFragment : Fragment() {
                 description = descriptionText
                 lockscreenVisibility = Notification.VISIBILITY_PUBLIC
             }
-            val notificationManager: NotificationManager = requireContext().getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            val notificationManager: NotificationManager =
+                requireContext().getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             notificationManager.createNotificationChannel(channel)
         }
     }
+
     private fun sendNotification(currentTemperature: Float, threshold: Float) {
+        // Check if the notification permission is granted (Android 13 and above)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(
+                    requireContext(),
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                // Request the permission if it has not been granted
+                ActivityCompat.requestPermissions(
+                    requireActivity(),
+                    arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+                    1001
+                )
+                return
+            }
+        }
+
+        // Create the intent for the notification
         val intent = Intent(requireContext(), MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         }
-        val pendingIntent: PendingIntent = PendingIntent.getActivity(requireContext(), 0, intent, 0)
 
+        // Create the PendingIntent with FLAG_IMMUTABLE to ensure it cannot be altered
+        val pendingIntent: PendingIntent = PendingIntent.getActivity(
+            requireContext(),
+            0,
+            intent,
+            PendingIntent.FLAG_IMMUTABLE // Use FLAG_IMMUTABLE as the PendingIntent doesn't need to be changed
+        )
+
+        // Build the notification
         val builder = NotificationCompat.Builder(requireContext(), "weather_alerts")
             .setSmallIcon(R.drawable.ic_launcher_foreground) // Replace with your icon
             .setContentTitle("Weather Alert!")
@@ -299,7 +294,8 @@ class WeatherDetailsFragment : Fragment() {
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)
 
-            with(NotificationManagerCompat.from(requireContext())) {
+        // Show the notification
+        with(NotificationManagerCompat.from(requireContext())) {
             notify(1, builder.build()) // Show the notification
         }
     }

@@ -1,5 +1,7 @@
 package com.example.climavista.activity
 
+import com.example.climavista.adapter.WeatherAlertAdapter
+import com.example.climavista.viewModel.WeatherAlertViewModel
 import android.content.Context
 import android.os.Bundle
 import android.util.Log
@@ -10,12 +12,12 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.climavista.adapter.WeatherAlertAdapter
 import com.example.climavista.databinding.FragmentWeatherAlertBinding
-import com.example.climavista.viewModel.WeatherAlertViewModel
+import kotlinx.coroutines.launch
 
 class WeatherAlertFragment : Fragment() {
 
@@ -47,9 +49,12 @@ class WeatherAlertFragment : Fragment() {
         weatherAlertViewModel = ViewModelProvider(requireActivity()).get(WeatherAlertViewModel::class.java)
         binding.alertRecyclerView.adapter = weatherAlertAdapter
 
-        weatherAlertViewModel.alertList.observe(viewLifecycleOwner) { alertList ->
-            weatherAlertAdapter.submitList(alertList)
-            Log.d("WeatherAlertFragment", "Number of alerts in RecyclerView: ${alertList.size}")
+        // Collect StateFlow for alertList
+        viewLifecycleOwner.lifecycleScope.launch {
+            weatherAlertViewModel.alertList.collect { alertList ->
+                weatherAlertAdapter.submitList(alertList)
+                Log.d("WeatherAlertFragment", "Number of alerts in RecyclerView: ${alertList.size}")
+            }
         }
 
         // Add new alert based on user input

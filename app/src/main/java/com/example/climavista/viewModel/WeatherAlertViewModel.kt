@@ -1,18 +1,19 @@
 package com.example.climavista.viewModel
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import androidx.lifecycle.ViewModel
+import kotlinx.coroutines.flow.asStateFlow
 
 class WeatherAlertViewModel : ViewModel() {
 
-    private val _alertList = MutableLiveData<List<WeatherAlert>>(emptyList())
-    val alertList: LiveData<List<WeatherAlert>> get() = _alertList
+    private val _alertList = MutableStateFlow<List<WeatherAlert>>(emptyList())
+    val alertList: StateFlow<List<WeatherAlert>> get() = _alertList.asStateFlow()
 
     // Add new alert
     fun addAlert(condition: String, threshold: Double) {
         val newAlert = WeatherAlert(condition, threshold)
-        _alertList.value = _alertList.value?.plus(newAlert)
+        _alertList.value += newAlert
     }
 }
 

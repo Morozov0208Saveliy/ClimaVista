@@ -11,15 +11,15 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.climavista.viewModel.CityViewModel
 import com.example.climavista.adapter.CityAdapter
 import com.example.climavista.databinding.FragmentCityListBinding
 import com.example.climavista.model.CityResponseApi
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 
 class CityListFragment : Fragment() {
 
@@ -53,6 +53,20 @@ class CityListFragment : Fragment() {
             adapter = cityAdapter
         }
 
+        // Observe the city list StateFlow
+        viewLifecycleOwner.lifecycleScope.launch {
+            cityViewModel.cityListState.collect { result ->
+                binding.progressBar3.visibility = View.GONE
+                result?.onSuccess { cityList ->
+                    // Filter out duplicates by city name
+                    val filteredCities = cityList.distinctBy { it.name }
+                    cityAdapter.differ.submitList(filteredCities)
+                }?.onFailure { error ->
+                    showError("Error loading cities: ${error.localizedMessage}")
+                }
+            }
+        }
+
         // Implement a debounced text watcher
         binding.cityEdt.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
@@ -64,7 +78,7 @@ class CityListFragment : Fragment() {
 
                 if (query.isNotEmpty()) {
                     val runnable = Runnable {
-                        searchCities(query, cityAdapter)
+                        searchCities(query)
                     }
                     handler.postDelayed(runnable, 500) // 500ms debounce
                 }
@@ -72,33 +86,11 @@ class CityListFragment : Fragment() {
         })
     }
 
-    private fun searchCities(query: String, cityAdapter: CityAdapter) {
+    private fun searchCities(query: String) {
         binding.progressBar3.visibility = View.VISIBLE
-        cityViewModel.loadCity(query, 10).enqueue(object : Callback<CityResponseApi> {
-            override fun onResponse(call: Call<CityResponseApi>, response: Response<CityResponseApi>) {
-                if (response.isSuccessful) {
-                    val data = response.body()
-                    if (data != null) {
-                        // Filter out duplicates by city name
-                        val filteredCities = data.distinctBy { it.name }
-                        cityAdapter.differ.submitList(filteredCities)
-                        binding.progressBar3.visibility = View.GONE
-                    } else {
-                        showError("No results found")
-                        binding.progressBar3.visibility = View.GONE
-                    }
-                } else {
-                    showError("Error loading results")
-                    binding.progressBar3.visibility = View.GONE
-                }
-            }
-
-            override fun onFailure(call: Call<CityResponseApi>, t: Throwable) {
-                showError("Error: ${t.localizedMessage}")
-                binding.progressBar3.visibility = View.GONE
-            }
-        })
+        cityViewModel.loadCity(query, 10) // No need for enqueue, this triggers the coroutine
     }
+
     private fun showError(message: String) {
         Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
     }

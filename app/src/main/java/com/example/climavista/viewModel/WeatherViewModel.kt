@@ -7,29 +7,26 @@ import com.example.climavista.model.ForecastResponseApi
 import com.example.climavista.repository.WeatherRepository
 import com.example.climavista.server.ApiClient
 import com.example.climavista.server.ApiServices
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class WeatherViewModel(
-    private val repository: WeatherRepository = WeatherRepository(
-        ApiClient().getClient().create(ApiServices::class.java)
-    )
+@HiltViewModel
+class WeatherViewModel @Inject constructor(
+    private val repository: WeatherRepository
 ) : ViewModel() {
 
-    // StateFlow for current weather
     private val _currentWeather = MutableStateFlow<CurrentResponseApi?>(null)
     val currentWeather: StateFlow<CurrentResponseApi?> = _currentWeather
 
-    // StateFlow for forecast weather
     private val _forecastWeather = MutableStateFlow<ForecastResponseApi?>(null)
     val forecastWeather: StateFlow<ForecastResponseApi?> = _forecastWeather
 
-    // StateFlow for loading state
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
 
-    // StateFlow for error
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error
 
@@ -61,7 +58,6 @@ class WeatherViewModel(
         }
     }
 
-    // Function to clear the error
     fun clearError() {
         _error.value = null
     }

@@ -12,7 +12,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.ViewOutlineProvider
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
@@ -32,12 +31,11 @@ import com.example.climavista.model.CurrentResponseApi
 import com.example.climavista.model.ForecastResponseApi
 import com.example.climavista.viewModel.WeatherViewModel
 import com.github.matteobattilana.weather.PrecipType
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 import java.util.Calendar
 
+@AndroidEntryPoint
 class WeatherDetailsFragment : Fragment() {
     private lateinit var binding: FragmentWeatherDetailsBinding
     private val weatherViewModel: WeatherViewModel by viewModels()

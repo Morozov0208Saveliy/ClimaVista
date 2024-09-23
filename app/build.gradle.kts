@@ -1,9 +1,10 @@
 plugins {
     id("com.android.application")
     id("kotlin-android")
-    id("androidx.navigation.safeargs.kotlin") // Плагин для SafeArgs
-    kotlin("kapt") // Для поддержки аннотаций
-    id("kotlin-parcelize") // Для использования Parcelize
+    id("androidx.navigation.safeargs.kotlin")
+    kotlin("kapt")
+    id("kotlin-parcelize")
+    id("com.google.dagger.hilt.android") version "2.48"
 }
 
 android {
@@ -16,7 +17,6 @@ android {
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -89,7 +89,6 @@ dependencies {
 
     // WeatherView for displaying weather effects
     implementation(libs.weatherview)
-
 
     // Testing dependencies
     testImplementation(libs.junit)

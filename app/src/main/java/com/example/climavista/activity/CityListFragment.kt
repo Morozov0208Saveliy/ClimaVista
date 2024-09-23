@@ -18,9 +18,11 @@ import com.example.climavista.viewModel.CityViewModel
 import com.example.climavista.adapter.CityAdapter
 import com.example.climavista.databinding.FragmentCityListBinding
 import com.example.climavista.model.CityResponseApi
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
+@AndroidEntryPoint
 class CityListFragment : Fragment() {
 
     private lateinit var binding: FragmentCityListBinding

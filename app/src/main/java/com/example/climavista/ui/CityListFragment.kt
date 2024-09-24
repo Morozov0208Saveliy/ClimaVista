@@ -1,4 +1,4 @@
-package com.example.climavista.activity
+package com.example.climavista.ui
 
 import android.os.Bundle
 import android.os.Handler
@@ -17,15 +17,15 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.climavista.viewModel.CityViewModel
 import com.example.climavista.adapter.CityAdapter
 import com.example.climavista.databinding.FragmentCityListBinding
-import com.example.climavista.model.CityResponseApi
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class CityListFragment : Fragment() {
 
-    private lateinit var binding: FragmentCityListBinding
+    private var _binding: FragmentCityListBinding? = null
+    val binding get() = _binding!!
+
     private val cityViewModel: CityViewModel by viewModels()
     private val handler = Handler(Looper.getMainLooper()) // For debounce
 
@@ -33,8 +33,13 @@ class CityListFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentCityListBinding.inflate(inflater, container, false)
+        _binding = FragmentCityListBinding.inflate(inflater, container, false)
         return binding.root
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null // Это предотвращает утечки памяти
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -93,7 +98,7 @@ class CityListFragment : Fragment() {
         cityViewModel.loadCity(query, 10) // No need for enqueue, this triggers the coroutine
     }
 
-    private fun showError(message: String) {
+    internal fun showError(message: String) {
         Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
     }
 }

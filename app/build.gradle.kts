@@ -18,6 +18,7 @@ android {
         versionCode = 1
         versionName = "1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner = "com.example.climavista.HiltTestRunner"
     }
 
     buildTypes {
@@ -72,7 +73,13 @@ dependencies {
 
     // Hilt for dependency injection
     implementation(libs.hilt.android)
-    kapt(libs.hilt.android.compiler)
+    implementation(libs.androidx.junit.ktx)
+    implementation(libs.androidx.runner)
+    kapt(libs.hilt.compiler)
+
+    // Hilt testing dependencies
+    androidTestImplementation(libs.hilt.android.testing)
+    kaptAndroidTest(libs.hilt.compiler)
 
     // Retrofit for networking
     implementation(libs.retrofit)
@@ -90,10 +97,29 @@ dependencies {
     // WeatherView for displaying weather effects
     implementation(libs.weatherview)
 
-    // Testing dependencies
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
+    testImplementation(libs.androidx.core.testing)
+
+    // Fragment Testing - для работы с launchFragmentInContainer
+    debugImplementation(libs.androidx.fragment.testing.v151)
+
+    // Espresso - для UI тестирования
+    androidTestImplementation(libs.androidx.espresso.core.v340)
+    androidTestImplementation (libs.androidx.espresso.contrib.v340)
+
+    // JUnit - для тестов
+    androidTestImplementation(libs.androidx.junit.v113)
+
+    // Mockito - для мокирования зависимостей
+    testImplementation(libs.mockito.core.v3112)
+    androidTestImplementation(libs.mockito.android)
+    testImplementation(libs.mockito.inline.v3112)
+
+    // Coroutines Test - для тестирования корутин
+    testImplementation(libs.kotlinx.coroutines.test)
+
+    testImplementation ("org.hamcrest:hamcrest-library:2.2")
+    androidTestImplementation ("org.hamcrest:hamcrest-library:2.2")
+    androidTestImplementation("com.google.dagger:hilt-android-testing:2.48")
 }
 
 kapt {

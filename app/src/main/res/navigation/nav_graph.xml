@@ -9,7 +9,7 @@
     <!-- WeatherDetailsFragment -->
     <fragment
         android:id="@+id/weatherDetailsFragment"
-        android:name="com.example.climavista.activity.WeatherDetailsFragment"
+        android:name="com.example.climavista.ui.WeatherDetailsFragment"
         android:label="Weather Details"
         tools:layout="@layout/fragment_weather_details">
         <action
@@ -35,7 +35,7 @@
     <!-- CityListFragment -->
     <fragment
         android:id="@+id/cityListFragment"
-        android:name="com.example.climavista.activity.CityListFragment"
+        android:name="com.example.climavista.ui.CityListFragment"
         android:label="City List"
         tools:layout="@layout/fragment_city_list">
         <action
@@ -46,7 +46,7 @@
     <!-- WeatherAlertFragment -->
     <fragment
         android:id="@+id/weatherAlertFragment"
-        android:name="com.example.climavista.activity.WeatherAlertFragment"
+        android:name="com.example.climavista.ui.WeatherAlertFragment"
         android:label="Weather Alerts"
         tools:layout="@layout/fragment_weather_alert">
         <argument

@@ -8,7 +8,7 @@
     android:orientation="vertical"
     android:fitsSystemWindows="false"
     android:padding="24dp"
-    tools:context=".activity.CityListFragment">
+    tools:context=".ui.CityListFragment">
 
     <TextView
         android:id="@+id/textView"

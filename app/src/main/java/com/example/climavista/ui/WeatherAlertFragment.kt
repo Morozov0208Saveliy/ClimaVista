@@ -1,4 +1,4 @@
-package com.example.climavista.activity
+package com.example.climavista.ui
 
 import com.example.climavista.adapter.WeatherAlertAdapter
 import com.example.climavista.viewModel.WeatherAlertViewModel

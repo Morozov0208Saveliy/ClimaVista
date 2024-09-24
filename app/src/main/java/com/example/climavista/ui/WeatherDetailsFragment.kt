@@ -1,4 +1,4 @@
-package com.example.climavista.activity
+package com.example.climavista.ui
 
 import android.app.Notification
 import android.app.NotificationChannel

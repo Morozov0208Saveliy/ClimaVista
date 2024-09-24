@@ -1,4 +1,4 @@
-package com.example.climavista.activity
+package com.example.climavista.ui
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity

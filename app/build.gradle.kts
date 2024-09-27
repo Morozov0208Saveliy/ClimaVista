@@ -75,6 +75,7 @@ dependencies {
     implementation(libs.hilt.android)
     implementation(libs.androidx.junit.ktx)
     implementation(libs.androidx.runner)
+    implementation(libs.androidx.work.runtime.ktx)
     kapt(libs.hilt.compiler)
 
     // Hilt testing dependencies
@@ -118,6 +119,8 @@ dependencies {
     testImplementation(libs.kotlinx.coroutines.test)
 
     testImplementation ("org.hamcrest:hamcrest-library:2.2")
+    androidTestImplementation ("org.hamcrest:hamcrest:2.2")
+
     androidTestImplementation ("org.hamcrest:hamcrest-library:2.2")
     androidTestImplementation("com.google.dagger:hilt-android-testing:2.48")
 }

@@ -36,6 +36,7 @@ coroutines = "1.7.3"
 weatherview = "3.0.0"
 junitKtx = "1.2.1"
 runner = "1.6.2"
+workRuntimeKtx = "2.9.1"
 
 [libraries]
 androidx-activity-ktx = { module = "androidx.activity:activity-ktx", version.ref = "activity" }
@@ -85,6 +86,7 @@ coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutin
 weatherview = { module = "com.github.MatteoBattilana:WeatherView", version.ref = "weatherview" }
 androidx-junit-ktx = { group = "androidx.test.ext", name = "junit-ktx", version.ref = "junitKtx" }
 androidx-runner = { group = "androidx.test", name = "runner", version.ref = "runner" }
+androidx-work-runtime-ktx = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "workRuntimeKtx" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

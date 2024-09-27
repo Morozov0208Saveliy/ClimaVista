@@ -38,6 +38,8 @@ import java.util.Calendar
 @AndroidEntryPoint
 class WeatherDetailsFragment : Fragment() {
     private lateinit var binding: FragmentWeatherDetailsBinding
+    private lateinit var notificationManager: NotificationManager
+
     private val weatherViewModel: WeatherViewModel by viewModels()
 
     private val calendar by lazy { Calendar.getInstance() }
@@ -75,6 +77,15 @@ class WeatherDetailsFragment : Fragment() {
             val action =
                 WeatherDetailsFragmentDirections.actionWeatherDetailsFragmentToCityListFragment()
             findNavController().navigate(action)
+
+
+//            println("call button press send notify ")
+//                    val sharedPreferences =
+//            requireContext().getSharedPreferences("WeatherAlerts", Context.MODE_PRIVATE)
+//
+//     val savedThreshold = sharedPreferences.getFloat("threshold", Float.MAX_VALUE)
+//            sendNotification(100.0f, savedThreshold)
+
         }
 
         binding.weatherAlertImageView.setOnClickListener {
@@ -237,18 +248,22 @@ class WeatherDetailsFragment : Fragment() {
     }
 
     private fun createNotificationChannel() {
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            val name = "Weather Alerts"
-            val descriptionText = "Channel for weather alerts"
-            val importance = NotificationManager.IMPORTANCE_HIGH
-            val channel = NotificationChannel("weather_alerts", name, importance).apply {
-                description = descriptionText
-                lockscreenVisibility = Notification.VISIBILITY_PUBLIC
-            }
-            val notificationManager: NotificationManager =
-                requireContext().getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            notificationManager.createNotificationChannel(channel)
+        val name = "Weather Alerts"
+        val descriptionText = "Channel for weather alerts"
+        val channelId = getString(R.string.default_notification_channel_id)
+        val importance = NotificationManager.IMPORTANCE_HIGH
+        println( " cteate notify 01 ")
+        val channel = NotificationChannel(channelId, name, importance).apply {
+            description = descriptionText
+            lockscreenVisibility = Notification.VISIBILITY_PUBLIC
         }
+
+        println( " cteate notify 02 ")
+
+        notificationManager = requireContext().getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+        println( " cteate notify 03 ")
+        notificationManager.createNotificationChannel(channel)
     }
 
     private fun sendNotification(currentTemperature: Float, threshold: Float) {
@@ -282,8 +297,9 @@ class WeatherDetailsFragment : Fragment() {
             PendingIntent.FLAG_IMMUTABLE // Use FLAG_IMMUTABLE as the PendingIntent doesn't need to be changed
         )
 
+        val chanID = getString(R.string.default_notification_channel_id)
         // Build the notification
-        val builder = NotificationCompat.Builder(requireContext(), "weather_alerts")
+        val builder = NotificationCompat.Builder(requireContext(), chanID)
             .setSmallIcon(R.drawable.ic_launcher_foreground) // Replace with your icon
             .setContentTitle("Weather Alert!")
             .setContentText("Temperature is above $threshold°C!")
@@ -293,8 +309,10 @@ class WeatherDetailsFragment : Fragment() {
             .setAutoCancel(true)
 
         // Show the notification
-        with(NotificationManagerCompat.from(requireContext())) {
-            notify(1, builder.build()) // Show the notification
-        }
+        val notificationId = 0
+        notificationManager.notify(notificationId, builder.build())
+//        with(NotificationManagerCompat.from(requireContext())) {
+//            notify(notificationId, builder.build()) // Show the notification
+//        }
     }
 }

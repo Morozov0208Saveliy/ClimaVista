@@ -1,13 +1,17 @@
 // NetworkModule.kt
 package com.example.climavista.di
 
+import android.content.Context
+import androidx.work.WorkerParameters
 import com.example.climavista.repository.CityRepository
 import com.example.climavista.repository.WeatherRepository
+import com.example.climavista.repository.WeatherUpdateWorker
 import com.example.climavista.server.ApiClient
 import com.example.climavista.server.ApiServices
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
@@ -50,5 +54,19 @@ object NetworkModule {
     @Singleton
     fun provideWeatherRepository(apiServices: ApiServices): WeatherRepository {
         return WeatherRepository(apiServices)
+    }
+
+    @Module
+    @InstallIn(SingletonComponent::class)
+    object WorkerModule {
+
+        @Provides
+        fun provideWeatherUpdateWorker(
+            @ApplicationContext context: Context,
+            params: WorkerParameters,
+            weatherRepository: WeatherRepository
+        ): WeatherUpdateWorker {
+            return WeatherUpdateWorker(context, params, weatherRepository)
+        }
     }
 }

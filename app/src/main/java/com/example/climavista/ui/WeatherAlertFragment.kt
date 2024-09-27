@@ -15,7 +15,9 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.climavista.databinding.FragmentWeatherAlertBinding
 import kotlinx.coroutines.launch
 
@@ -25,7 +27,6 @@ class WeatherAlertFragment : Fragment() {
     private lateinit var weatherAlertViewModel: WeatherAlertViewModel
     private val weatherAlertAdapter by lazy { WeatherAlertAdapter() }
 
-    // Retrieve arguments passed from WeatherDetailsFragment
     private val args: WeatherAlertFragmentArgs by navArgs()
 
     override fun onCreateView(
@@ -39,17 +40,17 @@ class WeatherAlertFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Display the current temperature received from WeatherDetailsFragment
+
         binding.currentTemperatureText.text = "Current Temperature: ${args.currentTemp}°C"
 
-        // Set the LayoutManager for the RecyclerView
         binding.alertRecyclerView.layoutManager = LinearLayoutManager(requireContext())
 
-        // Setup ViewModel and RecyclerView for displaying weather alerts
         weatherAlertViewModel = ViewModelProvider(requireActivity()).get(WeatherAlertViewModel::class.java)
         binding.alertRecyclerView.adapter = weatherAlertAdapter
 
-        // Collect StateFlow for alertList
+        val itemTouchHelper = ItemTouchHelper(itemTouchHelperCallback)
+        itemTouchHelper.attachToRecyclerView(binding.alertRecyclerView)
+
         viewLifecycleOwner.lifecycleScope.launch {
             weatherAlertViewModel.alertList.collect { alertList ->
                 weatherAlertAdapter.submitList(alertList)
@@ -57,13 +58,11 @@ class WeatherAlertFragment : Fragment() {
             }
         }
 
-        // Add new alert based on user input
         binding.addAlertButton.setOnClickListener {
             addNewAlert()
             hideKeyboard()
         }
 
-        // Back Button to return to WeatherDetailsFragment
         binding.backButton.setOnClickListener {
             findNavController().popBackStack() // Returns to the previous screen in the back stack
         }
@@ -84,5 +83,25 @@ class WeatherAlertFragment : Fragment() {
     private fun hideKeyboard() {
         val imm = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         imm.hideSoftInputFromWindow(binding.alertThresholdInput.windowToken, 0)
+    }
+
+    private val itemTouchHelperCallback = object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
+        override fun onMove(
+            recyclerView: RecyclerView,
+            viewHolder: RecyclerView.ViewHolder,
+            target: RecyclerView.ViewHolder
+        ): Boolean {
+            // We don't support moving items in this case
+            return false
+        }
+
+        override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+            val position = viewHolder.adapterPosition
+            val alertToRemove = weatherAlertAdapter.currentList[position]
+
+            weatherAlertViewModel.removeAlert(alertToRemove)
+
+            Toast.makeText(requireContext(), "Alert removed", Toast.LENGTH_SHORT).show()
+        }
     }
 }

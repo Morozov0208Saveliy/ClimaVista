@@ -15,6 +15,12 @@ class WeatherAlertViewModel : ViewModel() {
         val newAlert = WeatherAlert(condition, threshold)
         _alertList.value += newAlert
     }
-}
 
+    // Remove alert
+    fun removeAlert(alert: WeatherAlert) {
+        _alertList.value = _alertList.value.toMutableList().apply {
+            remove(alert)
+        }
+    }
+}
 data class WeatherAlert(val condition: String, val threshold: Double)

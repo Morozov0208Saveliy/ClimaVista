@@ -39,7 +39,6 @@ class WeatherViewModelSuccessTest {
 
     @Test
     fun `test load current weather successfully`() = runTest {
-        // Mock response for current weather
         val mockWeather = CurrentResponseApi(
             base = "stations",
             clouds = CurrentResponseApi.Clouds(all = 0),
@@ -74,18 +73,15 @@ class WeatherViewModelSuccessTest {
         Mockito.`when`(weatherRepository.getCurrentWeather(40.7128, -74.0060, "metric"))
             .thenReturn(mockWeather)
 
-        // Trigger the ViewModel to load current weather
         weatherViewModel.loadCurrentWeather(40.7128, -74.0060, "metric")
         advanceUntilIdle() // Завершение всех корутин
 
-        // Verify the result
         val weatherData = weatherViewModel.currentWeather.first()
         assertEquals(mockWeather, weatherData)
     }
 
     @Test
     fun `test load forecast weather successfully`() = runTest {
-        // Mock response for forecast weather
         val mockForecast = ForecastResponseApi(
             city = ForecastResponseApi.City(
                 coord = ForecastResponseApi.City.Coord(lat = 40.7128, lon = -74.0060),
@@ -105,11 +101,9 @@ class WeatherViewModelSuccessTest {
         Mockito.`when`(weatherRepository.getForecastWeather(40.7128, -74.0060, "metric"))
             .thenReturn(mockForecast)
 
-        // Trigger the ViewModel to load forecast weather
         weatherViewModel.loadForecastWeather(40.7128, -74.0060, "metric")
         advanceUntilIdle() // Завершение всех корутин
 
-        // Verify the result
         val forecastData = weatherViewModel.forecastWeather.first()
         assertEquals(mockForecast, forecastData)
     }

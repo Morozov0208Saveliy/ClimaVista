@@ -49,7 +49,6 @@ class CityListFragmentTest {
             // Проверка, что поле для поиска отображено
             onView(withId(R.id.cityEdt)).check(matches(isDisplayed()))
 
-            //
             println("in three")
 //        // Ввод текста в поле поиска
             onView(withId(R.id.cityEdt)).perform(replaceText("Москва"), closeSoftKeyboard())

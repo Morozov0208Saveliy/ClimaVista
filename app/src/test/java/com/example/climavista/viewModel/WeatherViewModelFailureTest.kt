@@ -32,40 +32,34 @@ class WeatherViewModelFailureTest {
 
     @After
     fun tearDown() {
-        Dispatchers.resetMain() // Сбрасываем Main Dispatcher после тестов
+        Dispatchers.resetMain()
     }
 
     @Test
     fun `test load current weather failure`() = runTest {
-        // Mock failure response for current weather
         val exception = RuntimeException("Failed to load current weather")
         Mockito.`when`(weatherRepository.getCurrentWeather(40.7128, -74.0060, "metric"))
             .thenThrow(exception)
 
-        // Trigger the ViewModel to load current weather
         weatherViewModel.loadCurrentWeather(40.7128, -74.0060, "metric")
-        advanceUntilIdle() // Ensure all coroutines complete
+        advanceUntilIdle()
 
-        // Verify the result
         val weatherData = weatherViewModel.currentWeather.first()
         val errorMessage = weatherViewModel.error.first()
 
-        assertNull(weatherData) // weatherData should be null
+        assertNull(weatherData)
         assertEquals("Failed to load current weather", errorMessage)
     }
 
     @Test
     fun `test load forecast weather failure`() = runTest {
-        // Mock failure response for forecast weather
         val exception = RuntimeException("Failed to load forecast weather")
         Mockito.`when`(weatherRepository.getForecastWeather(40.7128, -74.0060, "metric"))
             .thenThrow(exception)
 
-        // Trigger the ViewModel to load forecast weather
         weatherViewModel.loadForecastWeather(40.7128, -74.0060, "metric")
-        advanceUntilIdle() // Ensure all coroutines complete
+        advanceUntilIdle()
 
-        // Verify the result
         val forecastData = weatherViewModel.forecastWeather.first()
         val errorMessage = weatherViewModel.error.first()
 

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="padding_16dp">16dp</dimen>
+    <dimen name="textSize_14sp">14sp</dimen>
+    <dimen name="marginTop_8dp">8dp</dimen>
+    <dimen name="textSize_12sp">12sp</dimen>
+    <dimen name="margin_16dp">16dp</dimen>
+    <dimen name="textSize_18sp">18sp</dimen>
+    <dimen name="width_0dp">0dp</dimen>
+    <dimen name="marginTopDetails_32dp">32dp</dimen>
+    <dimen name="marginEndDetails_32dp">32dp</dimen>
+    <dimen name="marginStartDetails_32dp">32dp</dimen>
+    <dimen name="textSizeDetails_16sp">16sp</dimen>
+    <dimen name="textSizeDetails_18sp">18sp</dimen>
+    <dimen name="textSizeDetails_12sp">12sp</dimen>
+    <dimen name="marginEndDetails_16dp">16dp</dimen>
+    <dimen name="marginStartDetails_8dp">8dp</dimen>
+    <dimen name="marginEndDetails_8dp">8dp</dimen>
+</resources>

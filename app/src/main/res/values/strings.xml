@@ -2,6 +2,18 @@
     <string name="app_name">ClimaVista</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="default_notification_channel_id">99</string>
+    <string name="condition">Condition</string>
+    <string name="threshold">Threshold</string>
+    <string name="search_your_city">Search Your City</string>
+    <string name="enter_city_name">Enter City Name</string>
+    <string name="current_temperature">Current Temperature:</string>
+    <string name="back">Back</string>
+    <string name="threshold_alert">Threshold</string>
+    <string name="add_alert">Add Alert</string>
+    <string name="wind">Wind</string>
+    <string name="km">-Km</string>
+    <string name="_0">0</string>
+    <string name="humidity">Humidity</string>
     <string-array name="alert_conditions">
         <item>Above</item>
         <item>Below</item>

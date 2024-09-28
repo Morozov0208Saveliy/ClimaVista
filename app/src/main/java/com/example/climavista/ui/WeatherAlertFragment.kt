@@ -64,7 +64,7 @@ class WeatherAlertFragment : Fragment() {
         }
 
         binding.backButton.setOnClickListener {
-            findNavController().popBackStack() // Returns to the previous screen in the back stack
+            findNavController().popBackStack()
         }
     }
 
@@ -91,7 +91,6 @@ class WeatherAlertFragment : Fragment() {
             viewHolder: RecyclerView.ViewHolder,
             target: RecyclerView.ViewHolder
         ): Boolean {
-            // We don't support moving items in this case
             return false
         }
 

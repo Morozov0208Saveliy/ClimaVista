@@ -11,63 +11,58 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/ic_back"
-        android:contentDescription="Back"
+        android:contentDescription="@string/back"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        android:layout_margin="16dp" />
+        android:layout_margin="@dimen/margin_16dp" />
 
-    <!-- Current Temperature TextView -->
     <TextView
         android:id="@+id/currentTemperatureText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Current Temperature: "
-        android:textSize="18sp"
+        android:text="@string/current_temperature"
+        android:textSize="@dimen/textSize_18sp"
         android:textColor="@android:color/black"
-        android:layout_margin="16dp"
+        android:layout_margin="@dimen/margin_16dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- Threshold Input -->
     <EditText
         android:id="@+id/alertThresholdInput"
-        android:layout_width="0dp"
+        android:layout_width="@dimen/width_0dp"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:hint="Threshold"
+        android:layout_margin="@dimen/margin_16dp"
+        android:hint="@string/threshold_alert"
         android:inputType="numberDecimal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/currentTemperatureText" />
 
-    <!-- Condition Spinner -->
     <Spinner
         android:id="@+id/alertConditionSpinner"
-        android:layout_width="0dp"
+        android:layout_width="@dimen/width_0dp"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
+        android:layout_margin="@dimen/margin_16dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/alertThresholdInput"
         android:entries="@array/alert_conditions" />
 
-    <!-- Add Alert Button -->
     <Button
         android:id="@+id/addAlertButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Add Alert"
+        android:text="@string/add_alert"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/alertConditionSpinner" />
 
-    <!-- RecyclerView for displaying alerts -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/alertRecyclerView"
-        android:layout_width="0dp"
+        android:layout_width="@dimen/width_0dp"
         android:layout_height="0dp"
-        android:layout_margin="16dp"
+        android:layout_margin="@dimen/margin_16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

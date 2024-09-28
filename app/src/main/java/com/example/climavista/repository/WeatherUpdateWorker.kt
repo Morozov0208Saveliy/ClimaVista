@@ -1,6 +1,7 @@
 package com.example.climavista.repository
 
 import android.content.Context
+import android.util.Log
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -13,18 +14,21 @@ class WeatherUpdateWorker @Inject constructor(
 ) : CoroutineWorker(context, params) {
 
     override suspend fun doWork(): Result {
+        Log.d("WeatherUpdateWorker", "Starting doWork")
+
         return try {
-            // Получаем данные, переданные в Worker
             val lat = inputData.getDouble("lat", 0.0)
             val lng = inputData.getDouble("lng", 0.0)
             val units = inputData.getString("units") ?: "metric"
 
-            // Вызываем репозиторий для обновления данных о погоде
+            // Получаем данные о погоде
             weatherRepository.getCurrentWeather(lat, lng, units)
             weatherRepository.getForecastWeather(lat, lng, units)
 
+            Log.d("WeatherUpdateWorker", "Weather data updated successfully")
             Result.success()
         } catch (e: Exception) {
+            Log.e("WeatherUpdateWorker", "Error updating weather data: ${e.message}")
             Result.failure()
         }
     }

@@ -60,7 +60,6 @@ class CityListFragment : Fragment() {
             adapter = cityAdapter
         }
 
-        // Observe the city list StateFlow
         viewLifecycleOwner.lifecycleScope.launch {
             cityViewModel.cityListState.collect { result ->
                 binding.progressBar3.visibility = View.GONE
@@ -74,7 +73,6 @@ class CityListFragment : Fragment() {
             }
         }
 
-        // Implement a debounced text watcher
         binding.cityEdt.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
@@ -95,7 +93,7 @@ class CityListFragment : Fragment() {
 
     private fun searchCities(query: String) {
         binding.progressBar3.visibility = View.VISIBLE
-        cityViewModel.loadCity(query, 10) // No need for enqueue, this triggers the coroutine
+        cityViewModel.loadCity(query, 10)
     }
 
     internal fun showError(message: String) {

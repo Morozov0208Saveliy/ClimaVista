@@ -1,0 +1,1 @@
+ClimaVista is a weather application that delivers accurate and up-to-date weather information through a clean and responsive user interface. Built using modern Android development practices, this project demonstrates my ability to create reliable, feature-rich applications.
